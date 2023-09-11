@@ -1,1 +1,2 @@
-# mini_insurance_app
+
+https://qiita.com/Weekend
