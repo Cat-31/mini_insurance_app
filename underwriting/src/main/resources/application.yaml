@@ -1,0 +1,27 @@
+
+
+server:
+  port: 8003
+
+spring:
+  application:
+    name: underwriting
+  datasource:
+    url: jdbc:h2:file:./db/underwriting
+    username: underwriting
+    password: underwriting
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
