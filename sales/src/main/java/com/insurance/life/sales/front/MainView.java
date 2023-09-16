@@ -2,10 +2,19 @@ package com.insurance.life.sales.front;
 
 import com.insurance.life.sales.remote.ProductService;
 import com.insurance.life.sales.remote.UnderwritingService;
+import com.insurance.life.sales.remote.dto.ProductOption;
+import com.insurance.life.sales.remote.dto.TermOption;
 import com.insurance.life.sales.service.SalesService;
-import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+
+import java.math.BigDecimal;
 
 @Route("/main")
 class MainView extends VerticalLayout {
@@ -19,19 +28,45 @@ class MainView extends VerticalLayout {
         this.productService = productService;
         this.underwritingService = underwritingService;
 
-        Button button = new Button("Test Product");
-        button.addClickListener(o -> {
-            o.getSource().setText(productService.ok() + (int) (Math.random()*100));
+        add(new H1("Mini Life Insurance System"));
+        add(new Hr());
+
+        add(new H3("Customer Info"));
+        HorizontalLayout customerInfo = new HorizontalLayout();
+        customerInfo.add(new TextField("Name"));
+        customerInfo.add(new TextField("Age"));
+        customerInfo.add(new TextField("Gender"));
+
+        add(customerInfo);
+
+        add(new Hr());
+
+        HorizontalLayout plan = new HorizontalLayout();
+
+        Select<ProductOption> product = new Select();
+        product.setLabel("Product");
+        product.setItems(productService.queryAllProduct().getBody());
+        product.setItemLabelGenerator(ProductOption::getProductName);
+
+
+        Select<TermOption> term = new Select();
+        product.addValueChangeListener(event -> {
+            term.setLabel("Term");
+            term.setItems(productService.querySupportedTerm(event.getValue().getProductId()).getBody());
+            term.setItemLabelGenerator(TermOption::getDescription);
         });
 
-        add(button);
+        TextField amount = new TextField("Amount");
+        TextField premium = new TextField("Premium");
+        premium.addFocusListener(o -> {
+            BigDecimal prem = salesService.calculatePremium(
+                    product.getValue().getProductId(), new BigDecimal(amount.getValue()));
 
-        button = new Button("Test Underwriting");
-        button.addClickListener(o -> {
-            o.getSource().setText(underwritingService.ok() + (int) (Math.random()*100));
+            o.getSource().setValue(prem.toString());
         });
+        plan.add(product, term, amount, premium);
+        add(plan);
 
-        add(button);
     }
 }
 
