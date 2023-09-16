@@ -1,6 +1,5 @@
 package com.insurance.life.product;
 
-import com.google.gson.Gson;
 import com.insurance.life.product.entity.Config;
 import com.insurance.life.product.entity.PaymentType;
 import com.insurance.life.product.entity.Product;
@@ -46,8 +45,5 @@ public class ProductApplication {
 
 		product = new Product("P002", "安心年金", config);
 		repository.save(product);
-
-		Gson gson = new Gson();
-		System.out.println(gson.toJson(product));
 	}
 }
