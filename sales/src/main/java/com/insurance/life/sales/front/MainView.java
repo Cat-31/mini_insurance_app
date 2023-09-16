@@ -50,8 +50,8 @@ class MainView extends VerticalLayout {
 
 
         Select<TermOption> term = new Select();
+        term.setLabel("Term");
         product.addValueChangeListener(event -> {
-            term.setLabel("Term");
             term.setItems(productService.querySupportedTerm(event.getValue().getProductId()).getBody());
             term.setItemLabelGenerator(TermOption::getDescription);
         });
