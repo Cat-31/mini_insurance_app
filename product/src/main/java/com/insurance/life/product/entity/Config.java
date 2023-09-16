@@ -1,5 +1,7 @@
 package com.insurance.life.product.entity;
 
+import com.insurance.life.product.common.PaymentType;
+import com.insurance.life.product.common.Term;
 import jakarta.persistence.*;
 
 import java.io.Serializable;

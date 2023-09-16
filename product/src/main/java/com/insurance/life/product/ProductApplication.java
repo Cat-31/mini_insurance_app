@@ -1,9 +1,9 @@
 package com.insurance.life.product;
 
+import com.insurance.life.product.common.PaymentType;
+import com.insurance.life.product.common.Term;
 import com.insurance.life.product.entity.Config;
-import com.insurance.life.product.entity.PaymentType;
 import com.insurance.life.product.entity.Product;
-import com.insurance.life.product.entity.Term;
 import com.insurance.life.product.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
