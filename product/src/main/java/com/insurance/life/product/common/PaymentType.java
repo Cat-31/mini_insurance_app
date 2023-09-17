@@ -1,15 +1,23 @@
 package com.insurance.life.product.common;
 
 public enum PaymentType {
-    TYPE_1("0", "一括"),
+    TYPE_ALL("0", "一括"),
     TYPE_MONTH("1", "月払い"),
     TYPE_YEAR("2", "年払い");
 
-    private String value;
+    private String type;
     private String description;
 
-    PaymentType(String value, String description) {
-        this.value = value;
+    PaymentType(String type, String description) {
+        this.type = type;
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

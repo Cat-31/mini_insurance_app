@@ -18,6 +18,7 @@ public class Config implements Serializable {
 
     private int minAge;
     private int maxAge;
+    private String premiumCalculateStrategyName;
 
     @Enumerated(EnumType.STRING)
     private List<Term> supportedTerm;
@@ -28,16 +29,29 @@ public class Config implements Serializable {
     public Config() {
     }
 
-    public Config(int minAge, int maxAge,BigDecimal minAmount,
-                  List<Term> supportedTerm, List<PaymentType> paymentTypes) {
+    public Config(int minAge,
+                  int maxAge,
+                  BigDecimal minAmount,
+                  String premiumCalculateStrategyName,
+                  List<Term> supportedTerm,
+                  List<PaymentType> paymentTypes) {
         this.minAmount = minAmount;
         this.minAge = minAge;
         this.maxAge = maxAge;
+        this.premiumCalculateStrategyName = premiumCalculateStrategyName;
         this.supportedTerm = supportedTerm;
         this.paymentTypes = paymentTypes;
     }
 
     public List<Term> getSupportedTerm() {
         return supportedTerm;
+    }
+
+    public String getPremiumCalculateStrategyName() {
+        return premiumCalculateStrategyName;
+    }
+
+    public List<PaymentType> getSupportedPaymentType() {
+        return paymentTypes;
     }
 }
