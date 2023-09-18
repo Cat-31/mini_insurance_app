@@ -1,12 +1,19 @@
 package com.insurance.life.sales.front;
 
+import com.insurance.life.sales.entity.ApplicationRecord;
+import com.insurance.life.sales.front.vo.ApplicationRecordVO;
 import com.insurance.life.sales.remote.ProductService;
 import com.insurance.life.sales.remote.UnderwritingService;
 import com.insurance.life.sales.remote.dto.PaymentTypeOption;
 import com.insurance.life.sales.remote.dto.PremiumCalculateParam;
 import com.insurance.life.sales.remote.dto.ProductOption;
 import com.insurance.life.sales.remote.dto.TermOption;
+import com.insurance.life.sales.repository.ApplicationRecordRepository;
 import com.insurance.life.sales.service.SalesService;
+import com.insurance.life.underwriting.UnderWritingStatus;
+import com.insurance.life.underwriting.dto.*;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
@@ -17,15 +24,25 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Route("/main")
 class MainView extends VerticalLayout {
 
+    // bad smell
     private SalesService salesService;
     private ProductService productService;
     private UnderwritingService underwritingService;
+    private ApplicationRecordRepository repository;
 
-    MainView(SalesService salesService, ProductService productService, UnderwritingService underwritingService) {
+    MainView(SalesService salesService,
+             ProductService productService,
+             UnderwritingService underwritingService,
+             ApplicationRecordRepository repository) {
+
         this.salesService = salesService;
         this.productService = productService;
         this.underwritingService = underwritingService;
@@ -47,18 +64,15 @@ class MainView extends VerticalLayout {
 
         add(new Hr());
 
-        HorizontalLayout plan = new HorizontalLayout();
+        HorizontalLayout playLayout = new HorizontalLayout();
 
         Select<ProductOption> product = new Select();
         product.setLabel("Product");
         product.setItems(productService.queryAllProduct().getBody());
         product.setItemLabelGenerator(ProductOption::getProductName);
 
-
         Select<PaymentTypeOption> paymentType = new Select();
         paymentType.setLabel("PaymentType");
-
-
 
         Select<TermOption> term = new Select();
         term.setLabel("Term");
@@ -89,10 +103,62 @@ class MainView extends VerticalLayout {
                     product.getValue().getProductId(), param).getBody();
             premium.setValue(prem.toString());
         });
-        plan.add(product, term, amount, premium);
-        add(plan);
-
+        playLayout.add(product, term, amount, premium);
+        add(playLayout);
         add(paymentType);
+
+
+        Grid<ApplicationRecordVO> grid = new Grid<>(ApplicationRecordVO.class, false);
+        grid.addColumn(ApplicationRecordVO::getApplicationId).setHeader("Id");
+        grid.addColumn(ApplicationRecordVO::getApplicationDate).setHeader("Date");
+        grid.addColumn(ApplicationRecordVO::getStatus).setHeader("Status");
+
+
+
+        Button button = new Button("Application");
+        button.addClickListener(event -> {
+
+            ApplicationRecord record = new ApplicationRecord();
+
+            Applicant applicant = new Applicant(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+            Insured insured = new Insured(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+            Plan plan = new Plan(product.getValue().getProductId(),
+                    term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
+
+            Application application = new Application();
+            application.setApplicant(applicant);
+            application.setInsured(insured);
+            application.setPaymentType(paymentType.getValue().getPaymentType());
+            application.getPlanList().add(plan);
+            UnderWritingResult result = underwritingService.application(application).getBody();
+
+            record.setApplicationId(result.getApplicationId());
+            record.setApplicationDate(new Date());
+
+            if (result.isPass()) {
+                record.setStatus(UnderWritingStatus.PASS);
+            } else {
+                record.setStatus(UnderWritingStatus.UNPASS);
+            }
+            repository.save(record);
+
+            showRecords(repository, grid);
+        });
+
+        add(button);
+        add(grid);
+
+        showRecords(repository, grid);
+    }
+
+    private static void showRecords(ApplicationRecordRepository repository, Grid<ApplicationRecordVO> grid) {
+        List<ApplicationRecordVO> records = new ArrayList<>();
+        repository.findAll().forEach(
+                item -> records.add(new ApplicationRecordVO(item.getApplicationId(),
+                        item.getStatus().getDescription(),
+                        new SimpleDateFormat("yyyy/MM/dd").format(item.getApplicationDate()))));
+
+        grid.setItems(records);
     }
 }
 
