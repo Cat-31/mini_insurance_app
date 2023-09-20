@@ -1,0 +1,21 @@
+
+server:
+    port: 8001
+
+spring:
+    application:
+        name: sales
+    datasource:
+        url: jdbc:h2:file:./db/sales
+        username: sales
+        password: sales
+    jpa:
+        show-sql: true
+        hibernate:
+            ddl-auto: update
+    h2:
+        console:
+            path: /h2-console
+            enabled: true
+gateway:
+    domain: http://127.0.0.1:8000
