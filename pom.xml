@@ -11,9 +11,6 @@
 
     <modules>
         <module>eureka</module>
-        <module>gateway</module>
         <module>product</module>
-        <module>underwriting</module>
-        <module>sales</module>
     </modules>
 </project>
