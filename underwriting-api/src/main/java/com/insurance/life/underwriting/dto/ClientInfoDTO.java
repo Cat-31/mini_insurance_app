@@ -3,12 +3,12 @@ package com.insurance.life.underwriting.dto;
 import java.io.Serializable;
 import java.util.StringJoiner;
 
-public class ClientInfo implements Serializable {
+public class ClientInfoDTO implements Serializable {
     private String name;
     private String gender;
     private int age;
 
-    public ClientInfo(String name, String gender, int age) {
+    public ClientInfoDTO(String name, String gender, int age) {
         this.name = name;
         this.gender = gender;
         this.age = age;
@@ -40,7 +40,7 @@ public class ClientInfo implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", ClientInfo.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ClientInfoDTO.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("gender='" + gender + "'")
                 .add("age=" + age)

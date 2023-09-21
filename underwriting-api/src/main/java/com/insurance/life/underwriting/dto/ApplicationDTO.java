@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-public class Application {
-    private Applicant applicant;
-    private Insured insured;
+public class ApplicationDTO {
+    private ApplicantDTO applicant;
+    private InsuredDTO insured;
     private String paymentType;
 
-    private List<Plan> planList = new ArrayList<>();
+    private List<PlanDTO> planList = new ArrayList<>();
 
-    public Applicant getApplicant() {
+    public ApplicantDTO getApplicant() {
         return applicant;
     }
 
-    public void setApplicant(Applicant applicant) {
+    public void setApplicant(ApplicantDTO applicant) {
         this.applicant = applicant;
     }
 
-    public Insured getInsured() {
+    public InsuredDTO getInsured() {
         return insured;
     }
 
-    public void setInsured(Insured insured) {
+    public void setInsured(InsuredDTO insured) {
         this.insured = insured;
     }
 
@@ -35,17 +35,17 @@ public class Application {
         this.paymentType = paymentType;
     }
 
-    public List<Plan> getPlanList() {
+    public List<PlanDTO> getPlanList() {
         return planList;
     }
 
-    public void setPlanList(List<Plan> planList) {
+    public void setPlanList(List<PlanDTO> planList) {
         this.planList = planList;
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Application.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ApplicationDTO.class.getSimpleName() + "[", "]")
                 .add("applicant=" + applicant)
                 .add("insured=" + insured)
                 .add("paymentType='" + paymentType + "'")

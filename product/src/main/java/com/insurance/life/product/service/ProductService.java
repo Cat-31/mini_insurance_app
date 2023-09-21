@@ -1,9 +1,6 @@
 package com.insurance.life.product.service;
 
-import com.insurance.life.product.common.dto.PaymentTypeDTO;
-import com.insurance.life.product.common.dto.PremiumCalculateParam;
-import com.insurance.life.product.common.dto.ProductDTO;
-import com.insurance.life.product.common.dto.TermDTO;
+import com.insurance.life.product.dto.*;
 import com.insurance.life.product.entity.Product;
 import com.insurance.life.product.repository.ProductRepository;
 import com.insurance.life.product.service.strategy.premium.PremiumCalculateRequest;
@@ -59,4 +56,9 @@ public class ProductService {
         return premiumCalculateStrategyFactory.getStrategy(strategy).calculate(request);
     }
 
+    public ConfigDTO getConfig(String productId) {
+        ConfigDTO dto = new ConfigDTO();
+        BeanUtils.copyProperties(productRepository.findById(productId).get().getConfig(), dto);
+        return dto;
+    }
 }

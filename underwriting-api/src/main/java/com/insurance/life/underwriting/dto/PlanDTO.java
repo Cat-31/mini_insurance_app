@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.StringJoiner;
 
-public class Plan implements Serializable {
+public class PlanDTO implements Serializable {
     private String productId;
     private String term;
     private BigDecimal amount;
     private BigDecimal premium;
 
-    public Plan(String productId, String term, BigDecimal amount, BigDecimal premium) {
+    public PlanDTO(String productId, String term, BigDecimal amount, BigDecimal premium) {
         this.productId = productId;
         this.term = term;
         this.amount = amount;
@@ -51,7 +51,7 @@ public class Plan implements Serializable {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", Plan.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", PlanDTO.class.getSimpleName() + "[", "]")
                 .add("productId='" + productId + "'")
                 .add("term='" + term + "'")
                 .add("amount=" + amount)

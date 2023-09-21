@@ -1,47 +1,23 @@
-package com.insurance.life.product.entity;
+package com.insurance.life.product.dto;
+
 
 import com.insurance.life.product.enums.PaymentType;
 import com.insurance.life.product.enums.Term;
-import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Entity
-public class Config implements Serializable {
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class ConfigDTO implements Serializable {
     private BigDecimal minAmount;
 
     private int minAge;
     private int maxAge;
     private String premiumCalculateStrategyName;
 
-    @Enumerated(EnumType.STRING)
     private List<Term> supportedTerm;
 
-    @Enumerated(EnumType.STRING)
     private List<PaymentType> paymentTypes;
-
-    public Config() {
-    }
-
-    public Config(int minAge,
-                  int maxAge,
-                  BigDecimal minAmount,
-                  String premiumCalculateStrategyName,
-                  List<Term> supportedTerm,
-                  List<PaymentType> paymentTypes) {
-        this.minAmount = minAmount;
-        this.minAge = minAge;
-        this.maxAge = maxAge;
-        this.premiumCalculateStrategyName = premiumCalculateStrategyName;
-        this.supportedTerm = supportedTerm;
-        this.paymentTypes = paymentTypes;
-    }
 
     public List<Term> getSupportedTerm() {
         return supportedTerm;
@@ -69,5 +45,29 @@ public class Config implements Serializable {
 
     public List<PaymentType> getPaymentTypes() {
         return paymentTypes;
+    }
+
+    public void setMinAmount(BigDecimal minAmount) {
+        this.minAmount = minAmount;
+    }
+
+    public void setMinAge(int minAge) {
+        this.minAge = minAge;
+    }
+
+    public void setMaxAge(int maxAge) {
+        this.maxAge = maxAge;
+    }
+
+    public void setPremiumCalculateStrategyName(String premiumCalculateStrategyName) {
+        this.premiumCalculateStrategyName = premiumCalculateStrategyName;
+    }
+
+    public void setSupportedTerm(List<Term> supportedTerm) {
+        this.supportedTerm = supportedTerm;
+    }
+
+    public void setPaymentTypes(List<PaymentType> paymentTypes) {
+        this.paymentTypes = paymentTypes;
     }
 }

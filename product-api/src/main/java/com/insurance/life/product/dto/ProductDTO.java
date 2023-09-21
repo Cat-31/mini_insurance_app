@@ -1,4 +1,4 @@
-package com.insurance.life.product.common.dto;
+package com.insurance.life.product.dto;
 
 import java.io.Serializable;
 
