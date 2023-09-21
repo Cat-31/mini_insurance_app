@@ -1,10 +1,10 @@
 package com.insurance.life.product;
 
-import com.insurance.life.product.common.PaymentType;
-import com.insurance.life.product.common.Term;
 import com.insurance.life.product.entity.Config;
 import com.insurance.life.product.entity.Product;
 import com.insurance.life.product.entity.Rate;
+import com.insurance.life.product.enums.PaymentType;
+import com.insurance.life.product.enums.Term;
 import com.insurance.life.product.repository.ProductRepository;
 import com.insurance.life.product.repository.RateRepository;
 import jakarta.annotation.PostConstruct;
@@ -58,7 +58,7 @@ public class ProductApplication {
 
     private void initProduct() {
         repository.deleteAll();
-        Config config = new Config(18,
+        Config config = new Config(16,
                 60,
                 new BigDecimal(300000),
                 "PremiumCalculateWithTable",
@@ -68,7 +68,7 @@ public class ProductApplication {
         Product product = new Product("P001", "安心医療", config);
         repository.save(product);
 
-        config = new Config(18,
+        config = new Config(20,
                 60,
                 new BigDecimal(1000000),
                 "PremiumCalculateWithFixedRate",

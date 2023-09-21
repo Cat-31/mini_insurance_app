@@ -1,4 +1,4 @@
-package com.insurance.life.product.common;
+package com.insurance.life.product.enums;
 
 public enum Term {
     YEAR_1("1","1年"),

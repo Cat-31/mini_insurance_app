@@ -1,13 +1,13 @@
-package com.insurance.life.sales.remote.dto;
+package com.insurance.life.product.dto;
 
 import java.io.Serializable;
 
-public class PaymentTypeOption implements Serializable {
+public class PaymentTypeDTO implements Serializable {
 
     private String paymentType;
     private String description;
 
-    public PaymentTypeOption(String paymentType, String description) {
+    public PaymentTypeDTO(String paymentType, String description) {
         this.paymentType = paymentType;
         this.description = description;
     }

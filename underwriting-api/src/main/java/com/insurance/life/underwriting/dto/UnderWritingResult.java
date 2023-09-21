@@ -1,10 +1,13 @@
 package com.insurance.life.underwriting.dto;
 
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class UnderWritingResult implements Serializable {
     private String applicationId;
-    private boolean isPass;
+    private List<UnPassedReason> unPassedReasonList;
 
     public String getApplicationId() {
         return applicationId;
@@ -15,10 +18,15 @@ public class UnderWritingResult implements Serializable {
     }
 
     public boolean isPass() {
-        return isPass;
+        return CollectionUtils.isEmpty(unPassedReasonList);
     }
 
-    public void setPass(boolean pass) {
-        isPass = pass;
+
+    public List<UnPassedReason> getUnPassedReasonList() {
+        return unPassedReasonList;
+    }
+
+    public void setUnPassedReasonList(List<UnPassedReason> unPassedReasonList) {
+        this.unPassedReasonList = unPassedReasonList;
     }
 }

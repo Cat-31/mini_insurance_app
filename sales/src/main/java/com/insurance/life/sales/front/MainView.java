@@ -1,13 +1,13 @@
 package com.insurance.life.sales.front;
 
+import com.insurance.life.product.dto.PaymentTypeDTO;
+import com.insurance.life.product.dto.PremiumCalculateParam;
+import com.insurance.life.product.dto.ProductDTO;
+import com.insurance.life.product.dto.TermDTO;
 import com.insurance.life.sales.entity.ApplicationRecord;
 import com.insurance.life.sales.front.vo.ApplicationRecordVO;
 import com.insurance.life.sales.remote.ProductService;
 import com.insurance.life.sales.remote.UnderwritingService;
-import com.insurance.life.sales.remote.dto.PaymentTypeOption;
-import com.insurance.life.sales.remote.dto.PremiumCalculateParam;
-import com.insurance.life.sales.remote.dto.ProductOption;
-import com.insurance.life.sales.remote.dto.TermOption;
 import com.insurance.life.sales.repository.ApplicationRecordRepository;
 import com.insurance.life.sales.service.SalesService;
 import com.insurance.life.underwriting.UnderWritingStatus;
@@ -66,22 +66,22 @@ class MainView extends VerticalLayout {
 
         HorizontalLayout playLayout = new HorizontalLayout();
 
-        Select<ProductOption> product = new Select();
+        Select<ProductDTO> product = new Select();
         product.setLabel("Product");
         product.setItems(productService.queryAllProduct().getBody());
-        product.setItemLabelGenerator(ProductOption::getProductName);
+        product.setItemLabelGenerator(ProductDTO::getProductName);
 
-        Select<PaymentTypeOption> paymentType = new Select();
+        Select<PaymentTypeDTO> paymentType = new Select();
         paymentType.setLabel("PaymentType");
 
-        Select<TermOption> term = new Select();
+        Select<TermDTO> term = new Select();
         term.setLabel("Term");
         product.addValueChangeListener(event -> {
             term.setItems(productService.querySupportedTerm(event.getValue().getProductId()).getBody());
-            term.setItemLabelGenerator(TermOption::getDescription);
+            term.setItemLabelGenerator(TermDTO::getDescription);
 
             paymentType.setItems(productService.querySupportedPaymentType(event.getValue().getProductId()).getBody());
-            paymentType.setItemLabelGenerator(PaymentTypeOption::getDescription);
+            paymentType.setItemLabelGenerator(PaymentTypeDTO::getDescription);
 
         });
 
@@ -114,18 +114,20 @@ class MainView extends VerticalLayout {
         grid.addColumn(ApplicationRecordVO::getStatus).setHeader("Status");
 
 
+        Grid<UnPassedReason> unPassedReasonGrid = new Grid<>(UnPassedReason.class, true);
+
 
         Button button = new Button("Application");
         button.addClickListener(event -> {
 
             ApplicationRecord record = new ApplicationRecord();
 
-            Applicant applicant = new Applicant(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            Insured insured = new Insured(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            Plan plan = new Plan(product.getValue().getProductId(),
+            ApplicantDTO applicant = new ApplicantDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+            InsuredDTO insured = new InsuredDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+            PlanDTO plan = new PlanDTO(product.getValue().getProductId(),
                     term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
 
-            Application application = new Application();
+            ApplicationDTO application = new ApplicationDTO();
             application.setApplicant(applicant);
             application.setInsured(insured);
             application.setPaymentType(paymentType.getValue().getPaymentType());
@@ -142,16 +144,21 @@ class MainView extends VerticalLayout {
             }
             repository.save(record);
 
+            unPassedReasonGrid.setItems(result.getUnPassedReasonList());
             showRecords(repository, grid);
         });
 
         add(button);
+
+        unPassedReasonGrid.setAllRowsVisible(true);
+        grid.setAllRowsVisible(true);
+        add(unPassedReasonGrid);
         add(grid);
 
         showRecords(repository, grid);
     }
 
-    private static void showRecords(ApplicationRecordRepository repository, Grid<ApplicationRecordVO> grid) {
+    private void showRecords(ApplicationRecordRepository repository, Grid<ApplicationRecordVO> grid) {
         List<ApplicationRecordVO> records = new ArrayList<>();
         repository.findAll().forEach(
                 item -> records.add(new ApplicationRecordVO(item.getApplicationId(),

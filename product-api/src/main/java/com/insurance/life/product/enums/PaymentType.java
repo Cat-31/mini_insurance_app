@@ -1,4 +1,4 @@
-package com.insurance.life.product.common;
+package com.insurance.life.product.enums;
 
 public enum PaymentType {
     TYPE_ALL("0", "一括"),

@@ -13,6 +13,7 @@
         <module>eureka</module>
         <module>gateway</module>
         <module>product</module>
+        <module>product-api</module>
         <module>underwriting</module>
         <module>underwriting-api</module>
         <module>sales</module>

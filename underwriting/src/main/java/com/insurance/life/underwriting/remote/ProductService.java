@@ -1,10 +1,8 @@
 package com.insurance.life.underwriting.remote;
 
+import com.insurance.life.product.api.ProductApi;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(name = "product", path = "/")
-public interface ProductService {
-    @GetMapping("/ok")
-    String ok();
+public interface ProductService extends ProductApi {
 }

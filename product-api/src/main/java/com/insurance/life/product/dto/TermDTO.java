@@ -1,13 +1,13 @@
-package com.insurance.life.sales.remote.dto;
+package com.insurance.life.product.dto;
 
 import java.io.Serializable;
 
-public class TermOption implements Serializable {
+public class TermDTO implements Serializable {
 
     private String term;
     private String description;
 
-    public TermOption(String term, String description) {
+    public TermDTO(String term, String description) {
         this.term = term;
         this.description = description;
     }
