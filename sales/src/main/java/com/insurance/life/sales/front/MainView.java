@@ -119,16 +119,7 @@ class MainView extends VerticalLayout {
 
             SaveApplicationRecordCommand saveApplicationRecordCommand = new SaveApplicationRecordCommand();
 
-            ApplicantDTO applicant = new ApplicantDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            InsuredDTO insured = new InsuredDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            PlanDTO plan = new PlanDTO(product.getValue().getProductId(),
-                    term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
-
-            ApplicationDTO application = new ApplicationDTO();
-            application.setApplicant(applicant);
-            application.setInsured(insured);
-            application.setPaymentType(paymentType.getValue().getPaymentType());
-            application.getPlanList().add(plan);
+            ApplicationDTO application = getApplicationDTO(name, gender, age, product, term, amount, premium, paymentType);
 
             ApplicationCommand applicationCommand = new ApplicationCommand(application);
 
@@ -165,6 +156,25 @@ class MainView extends VerticalLayout {
                 new QueryApplicationRecordCommand(),
                 (CallBack<List<ApplicationRecordDTO>>) records ->  grid.setItems(records)
         );
+    }
+
+    private ApplicationDTO getApplicationDTO(TextField name,
+                                                    TextField gender,
+                                                    TextField age,
+                                                    Select<ProductDTO> product, Select<TermDTO> term,
+                                                    TextField amount, TextField premium,
+                                                    Select<PaymentTypeDTO> paymentType) {
+        ApplicantDTO applicant = new ApplicantDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+        InsuredDTO insured = new InsuredDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+        PlanDTO plan = new PlanDTO(product.getValue().getProductId(),
+                term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
+
+        ApplicationDTO application = new ApplicationDTO();
+        application.setApplicant(applicant);
+        application.setInsured(insured);
+        application.setPaymentType(paymentType.getValue().getPaymentType());
+        application.getPlanList().add(plan);
+        return application;
     }
 }
 
