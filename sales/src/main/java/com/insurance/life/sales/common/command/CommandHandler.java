@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.METHOD})
 public @interface CommandHandler {
 
 }
