@@ -4,12 +4,10 @@ import com.insurance.life.product.dto.PaymentTypeDTO;
 import com.insurance.life.product.dto.PremiumCalculateParam;
 import com.insurance.life.product.dto.ProductDTO;
 import com.insurance.life.product.dto.TermDTO;
-import com.insurance.life.sales.entity.ApplicationRecord;
-import com.insurance.life.sales.front.vo.ApplicationRecordVO;
-import com.insurance.life.sales.remote.ProductService;
-import com.insurance.life.sales.remote.UnderwritingService;
-import com.insurance.life.sales.repository.ApplicationRecordRepository;
-import com.insurance.life.sales.service.SalesService;
+import com.insurance.life.sales.common.command.CallBack;
+import com.insurance.life.sales.common.command.CommandExecutor;
+import com.insurance.life.sales.common.dto.ApplicationRecordDTO;
+import com.insurance.life.sales.service.command.*;
 import com.insurance.life.underwriting.UnderWritingStatus;
 import com.insurance.life.underwriting.dto.*;
 import com.vaadin.flow.component.button.Button;
@@ -24,28 +22,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Route("/main")
 class MainView extends VerticalLayout {
 
-    // bad smell
-    private SalesService salesService;
-    private ProductService productService;
-    private UnderwritingService underwritingService;
-    private ApplicationRecordRepository repository;
+    private CommandExecutor commandExecutor;
 
-    MainView(SalesService salesService,
-             ProductService productService,
-             UnderwritingService underwritingService,
-             ApplicationRecordRepository repository) {
-
-        this.salesService = salesService;
-        this.productService = productService;
-        this.underwritingService = underwritingService;
+    MainView(CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
 
         add(new H1("Mini Life Insurance System"));
         add(new Hr());
@@ -68,21 +54,32 @@ class MainView extends VerticalLayout {
 
         Select<ProductDTO> product = new Select();
         product.setLabel("Product");
-        product.setItems(productService.queryAllProduct().getBody());
+
+        commandExecutor.execute(
+                new QueryAllProductCommand(),
+                (CallBack<List<ProductDTO>>) o -> product.setItems(o)
+        );
+
         product.setItemLabelGenerator(ProductDTO::getProductName);
 
         Select<PaymentTypeDTO> paymentType = new Select();
         paymentType.setLabel("PaymentType");
+        paymentType.setItemLabelGenerator(PaymentTypeDTO::getDescription);
 
         Select<TermDTO> term = new Select();
         term.setLabel("Term");
+        term.setItemLabelGenerator(TermDTO::getDescription);
+
         product.addValueChangeListener(event -> {
-            term.setItems(productService.querySupportedTerm(event.getValue().getProductId()).getBody());
-            term.setItemLabelGenerator(TermDTO::getDescription);
+            commandExecutor.execute(
+                new QuerySupportedTermCommand(event.getValue().getProductId()),
+                (CallBack<List<TermDTO>>) o -> term.setItems(o)
+            );
 
-            paymentType.setItems(productService.querySupportedPaymentType(event.getValue().getProductId()).getBody());
-            paymentType.setItemLabelGenerator(PaymentTypeDTO::getDescription);
-
+            commandExecutor.execute(
+                    new QuerySupportedPaymentTypeCommand(event.getValue().getProductId()),
+                    (CallBack<List<PaymentTypeDTO>>) o -> paymentType.setItems(o)
+            );
         });
 
         TextField amount = new TextField("Amount");
@@ -90,28 +87,28 @@ class MainView extends VerticalLayout {
 
         premium.addFocusListener(o -> {
             PremiumCalculateParam param = new PremiumCalculateParam();
-            // param.setAge(age);
             param.setAmount(new BigDecimal(amount.getValue()));
             param.setTerm(term.getValue().getTerm());
-            param.setPaymentType(param.getPaymentType());
             param.setAge(Integer.valueOf(age.getValue()));
             param.setGender(gender.getValue());
             param.setTerm(term.getValue().getTerm());
             param.setPaymentType(paymentType.getValue().getPaymentType());
 
-            BigDecimal prem = productService.premiumCalculate(
-                    product.getValue().getProductId(), param).getBody();
-            premium.setValue(prem.toString());
+            commandExecutor.execute(
+                    new PremiumCalculateCommand(product.getValue().getProductId(), param),
+                    (CallBack<BigDecimal>) prem -> premium.setValue(prem.toString())
+            );
         });
+
         playLayout.add(product, term, amount, premium);
         add(playLayout);
         add(paymentType);
 
 
-        Grid<ApplicationRecordVO> grid = new Grid<>(ApplicationRecordVO.class, false);
-        grid.addColumn(ApplicationRecordVO::getApplicationId).setHeader("Id");
-        grid.addColumn(ApplicationRecordVO::getApplicationDate).setHeader("Date");
-        grid.addColumn(ApplicationRecordVO::getStatus).setHeader("Status");
+        Grid<ApplicationRecordDTO> grid = new Grid<>(ApplicationRecordDTO.class, false);
+        grid.addColumn(ApplicationRecordDTO::getApplicationId).setHeader("Id");
+        grid.addColumn(ApplicationRecordDTO::getApplicationDate).setHeader("Date");
+        grid.addColumn(ApplicationRecordDTO::getStatus).setHeader("Status");
 
 
         Grid<UnPassedReason> unPassedReasonGrid = new Grid<>(UnPassedReason.class, true);
@@ -120,32 +117,32 @@ class MainView extends VerticalLayout {
         Button button = new Button("Application");
         button.addClickListener(event -> {
 
-            ApplicationRecord record = new ApplicationRecord();
+            SaveApplicationRecordCommand saveApplicationRecordCommand = new SaveApplicationRecordCommand();
 
-            ApplicantDTO applicant = new ApplicantDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            InsuredDTO insured = new InsuredDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
-            PlanDTO plan = new PlanDTO(product.getValue().getProductId(),
-                    term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
+            ApplicationDTO application = getApplicationDTO(name, gender, age, product, term, amount, premium, paymentType);
 
-            ApplicationDTO application = new ApplicationDTO();
-            application.setApplicant(applicant);
-            application.setInsured(insured);
-            application.setPaymentType(paymentType.getValue().getPaymentType());
-            application.getPlanList().add(plan);
-            UnderWritingResult result = underwritingService.application(application).getBody();
+            ApplicationCommand applicationCommand = new ApplicationCommand(application);
 
-            record.setApplicationId(result.getApplicationId());
-            record.setApplicationDate(new Date());
+            commandExecutor.execute(applicationCommand, (CallBack<UnderWritingResult>) result -> {
+                    saveApplicationRecordCommand.setApplicationId(result.getApplicationId());
+                    saveApplicationRecordCommand.setApplicationDate(new Date());
 
-            if (result.isPass()) {
-                record.setStatus(UnderWritingStatus.PASS);
-            } else {
-                record.setStatus(UnderWritingStatus.UNPASS);
-            }
-            repository.save(record);
+                    if (result.isPass()) {
+                        saveApplicationRecordCommand.setStatus(UnderWritingStatus.PASS);
+                    } else {
+                        saveApplicationRecordCommand.setStatus(UnderWritingStatus.UNPASS);
+                    }
 
-            unPassedReasonGrid.setItems(result.getUnPassedReasonList());
-            showRecords(repository, grid);
+                    unPassedReasonGrid.setItems(result.getUnPassedReasonList());
+                }
+            );
+
+            commandExecutor.execute(saveApplicationRecordCommand);
+
+            commandExecutor.execute(
+                    new QueryApplicationRecordCommand(),
+                    (CallBack<List<ApplicationRecordDTO>>) records ->  grid.setItems(records)
+            );
         });
 
         add(button);
@@ -155,17 +152,29 @@ class MainView extends VerticalLayout {
         add(unPassedReasonGrid);
         add(grid);
 
-        showRecords(repository, grid);
+        commandExecutor.execute(
+                new QueryApplicationRecordCommand(),
+                (CallBack<List<ApplicationRecordDTO>>) records ->  grid.setItems(records)
+        );
     }
 
-    private void showRecords(ApplicationRecordRepository repository, Grid<ApplicationRecordVO> grid) {
-        List<ApplicationRecordVO> records = new ArrayList<>();
-        repository.findAll().forEach(
-                item -> records.add(new ApplicationRecordVO(item.getApplicationId(),
-                        item.getStatus().getDescription(),
-                        new SimpleDateFormat("yyyy/MM/dd").format(item.getApplicationDate()))));
+    private ApplicationDTO getApplicationDTO(TextField name,
+                                                    TextField gender,
+                                                    TextField age,
+                                                    Select<ProductDTO> product, Select<TermDTO> term,
+                                                    TextField amount, TextField premium,
+                                                    Select<PaymentTypeDTO> paymentType) {
+        ApplicantDTO applicant = new ApplicantDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+        InsuredDTO insured = new InsuredDTO(name.getValue(), gender.getValue(), Integer.valueOf(age.getValue()));
+        PlanDTO plan = new PlanDTO(product.getValue().getProductId(),
+                term.getValue().getTerm(), new BigDecimal(amount.getValue()), new BigDecimal(premium.getValue()));
 
-        grid.setItems(records);
+        ApplicationDTO application = new ApplicationDTO();
+        application.setApplicant(applicant);
+        application.setInsured(insured);
+        application.setPaymentType(paymentType.getValue().getPaymentType());
+        application.getPlanList().add(plan);
+        return application;
     }
 }
 
