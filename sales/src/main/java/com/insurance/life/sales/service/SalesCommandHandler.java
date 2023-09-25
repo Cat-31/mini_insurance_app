@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SalesCommadHandler implements BaseCommandHandler {
+public class SalesCommandHandler implements BaseCommandHandler {
     private ApplicationRecordRepository repository;
 
-    public SalesCommadHandler(ApplicationRecordRepository repository) {
+    public SalesCommandHandler(ApplicationRecordRepository repository) {
         this.repository = repository;
     }
 
