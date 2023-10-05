@@ -17,5 +17,6 @@
         <module>underwriting</module>
         <module>underwriting-api</module>
         <module>sales</module>
+        <module>img2txt</module>
     </modules>
 </project>
