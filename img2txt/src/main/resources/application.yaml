@@ -1,0 +1,27 @@
+
+
+server:
+  port: 8005
+
+spring:
+  application:
+    name: img2txt
+  datasource:
+    url: jdbc:h2:file:./db/img2txt
+    username: img2txt
+    password: img2txt
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
